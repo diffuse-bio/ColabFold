@@ -15,7 +15,7 @@
             // disable parallel stage execution if you plan to use exactly #workers of CPU-cores
             // this will ~2-3x speedup the execution, while requiring more cores
             "parallelstages": true,
-            "uniref"        : "/mnt/disks/colabfold-dbs/databases/uniref30_2302.db",
+            "uniref"        : "/mnt/disks/colabfold-dbs/databases/uniref30_db",
             "pdb"           : "/mnt/disks/colabfold-dbs/databases/pdb100_230517",
             "environmental" : "/mnt/disks/colabfold-dbs/databases/colabfold_envdb",
             "pdb70"         : "/mnt/disks/colabfold-dbs/databases/pdb100",
