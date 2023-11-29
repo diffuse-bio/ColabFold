@@ -10,6 +10,7 @@ import hashlib
 import tarfile
 import time
 import os
+import glob
 from typing import Tuple, List
 
 import random
@@ -239,17 +240,17 @@ def run_mmseqs2(x: dict, prefix, use_env=True, use_filter=True,
       # Download results
       download(ID, tar_gz_file)
 
-  # # prep list of a3m files
-  # if use_pairing:
-  #   a3m_files = [f"{path}/pair.a3m"]
-  # else:
-  #   a3m_files = [f"{path}/uniref.a3m"]
-  #   if use_env: a3m_files.append(f"{path}/bfd.mgnify30.metaeuk30.smag30.a3m")
+  # prep list of a3m files
+  if use_pairing:
+    a3m_files = [f"{path}/pair.a3m"]
+  else:
+    a3m_files = glob.glob(f"{path}/*.aln")
+    if use_env: a3m_files.append(f"{path}/bfd.mgnify30.metaeuk30.smag30.a3m")
 
-  # # extract a3m files
-  # if any(not os.path.isfile(a3m_file) for a3m_file in a3m_files):
-  #   with tarfile.open(tar_gz_file) as tar_gz:
-  #     tar_gz.extractall(path)
+  # extract a3m files
+  if any(not os.path.isfile(a3m_file) for a3m_file in a3m_files):
+    with tarfile.open(tar_gz_file) as tar_gz:
+      tar_gz.extractall(path)
 
   # # templates
   # if use_templates:
@@ -327,7 +328,7 @@ def run_mmseqs2(x: dict, prefix, use_env=True, use_filter=True,
 
 
   # return (a3m_lines, template_paths) if use_templates else a3m_lines
-  return None
+  return
 
 #########################################################################
 # utils

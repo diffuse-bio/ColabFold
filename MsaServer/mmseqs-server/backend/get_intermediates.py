@@ -12,9 +12,12 @@ def setup_paired_msa(job_fasta, intermediate_store):
         lines = f.readlines()
         id_A = lines[0][1:-1] # ignore leading > and trailing \n
         id_B = lines[2][1:-1]
+        
     
-
-    # copy over res_exp_realign files -- symbolic link?
+    assert os.path.exists(f'{intermediate_store}/{id_A}.aln')
+    assert os.path.exists(f'{intermediate_store}/{id_B}.aln')
+    
+    # copy over res_exp_realign files -- symbolic link
     subprocess.run(['ln', '-s', f'{intermediate_store}/{id_A}.aln', f'{base}/res_exp_realign.0'])
     subprocess.run(['ln', '-s', f'{intermediate_store}/{id_B}.aln', f'{base}/res_exp_realign.1'])
     subprocess.run(['ln', '-s', f'{intermediate_store}/res_exp_realign.dbtype', f'{base}/'])
