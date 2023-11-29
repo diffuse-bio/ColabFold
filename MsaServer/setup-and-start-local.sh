@@ -51,18 +51,18 @@ if [ ! -d databases ]; then
   ../setup_databases.sh databases "${PDB_SERVER}" "${PDB_PORT}"
 fi
 
-# make sure the API server is checked out
-if [ -d mmseqs-server ]; then
-  pushd mmseqs-server
-  git pull
-  git checkout ${BACKEND_COMMIT}
-  popd
-else
-  git clone https://github.com/soedinglab/MMseqs2-App.git mmseqs-server
-  pushd mmseqs-server
-  git checkout ${BACKEND_COMMIT}
-  popd
-fi
+## make sure the API server is checked out
+#if [ -d mmseqs-server ]; then
+#  pushd mmseqs-server
+#  git pull
+#  git checkout ${BACKEND_COMMIT}
+#  popd
+#else
+#  git clone https://github.com/soedinglab/MMseqs2-App.git mmseqs-server
+#  pushd mmseqs-server
+#  git checkout ${BACKEND_COMMIT}
+#  popd
+#fi
 
 # compile the api server
 pushd mmseqs-server/backend
