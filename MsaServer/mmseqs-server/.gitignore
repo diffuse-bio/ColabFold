@@ -1,44 +1,12 @@
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Compiled Dynamic libraries
-*.so.*
-*.dylib
-*.dll
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-# debug
-*.dSYM
 .DS_Store
-*.swp
-# programs
-
-*.depend
-*.swp
-src/workflow/time_test
-
-build/
-.idea/
-cmake-build-*/
-BenchmarkingDatas/
-examples/
-TestPhages/
-temp/
-BacteriaBench/
-EliTestFiles/
-NCBI_Bacteria_Orfs/
-build.old/
+dist/*
+build/*
+node_modules/
+npm-debug.log
+npm-debug.log.*
+thumbs.db
+!.gitkeep
+pkg/
+resources/
+backend/.cache/
 .vscode/
-vsc.code-workspace

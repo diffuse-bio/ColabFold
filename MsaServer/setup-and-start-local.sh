@@ -6,8 +6,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd "${SCRIPT_DIR}"
 
 # choose which pdb rsync server to use
-#PDB_SERVER=rsync.wwpdb.org::ftp                                   # RCSB PDB server name
-#PDB_PORT=33444                                                    # port RCSB PDB server is using
+PDB_SERVER=rsync.wwpdb.org::ftp                                   # RCSB PDB server name
+PDB_PORT=33444                                                    # port RCSB PDB server is using
 #
 #PDB_SERVER=rsync.ebi.ac.uk::pub/databases/rcsb/pdb-remediated     # PDBe server name
 #PDB_PORT=873                                                      # port PDBe server is using
@@ -45,11 +45,11 @@ fi
 # mmseqs needs to be in PATH for the setup_databases script to work
 PATH="${SCRIPT_DIR}/mmseqs/bin:$PATH"
 
-# don't re-download databases if they already exist as they are quite large
-if [ ! -d databases ]; then
-  mkdir -p databases
-  ../setup_databases.sh databases "${PDB_SERVER}" "${PDB_PORT}"
-fi
+## don't re-download databases if they already exist as they are quite large
+#if [ ! -d databases ]; then
+#  mkdir -p databases
+#  ../setup_databases.sh databases "${PDB_SERVER}" "${PDB_PORT}"
+#fi
 
 ## make sure the API server is checked out
 #if [ -d mmseqs-server ]; then
