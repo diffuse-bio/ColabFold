@@ -248,11 +248,10 @@ def run_mmseqs2(x: dict, prefix, use_env=True, use_filter=True,
     if use_env: a3m_files.append(f"{path}/bfd.mgnify30.metaeuk30.smag30.a3m")
 
 
-
-  # # extract a3m files
+  # extract a3m files
   # if any(not os.path.isfile(a3m_file) for a3m_file in a3m_files):
-  #   with tarfile.open(tar_gz_file) as tar_gz:
-  #     tar_gz.extractall(path)
+  with tarfile.open(tar_gz_file) as tar_gz:
+    tar_gz.extractall(path)
 
   # # templates
   # if use_templates:
