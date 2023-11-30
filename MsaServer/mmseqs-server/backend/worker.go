@@ -266,7 +266,7 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 	"${MMSEQS}" rmdb "${BASE}/res_exp_realign"
 	rm -rf -- "${BASE}/tmp"
 	cd "${BASE}"
-	tar -czvf "mmseqs_results_${OUT}.tar.gz" *.aln
+	tar -czvf "mmseqs_results_${OUT}.tar.gz" *.aln msa.sh
 	`)
 
 		err = script.Close()
