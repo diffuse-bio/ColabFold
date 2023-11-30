@@ -247,6 +247,7 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 	BASE="$4"
 	DB1="$5"
 	DB2="$6"
+	OUT="$13"
 	mkdir -p "${BASE}"
 	SEARCH_PARAM="--num-iterations 3 --db-load-mode 2 -a --k-score 'seq:96,prof:80' -e 0.1 --max-seqs 10000"
 	EXPAND_PARAM="--expansion-mode 0 -e inf --expand-filter-clusters 0 --max-seq-id 0.95"
@@ -264,6 +265,10 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 	"${MMSEQS}" rmdb "${BASE}/res_final"
 	"${MMSEQS}" rmdb "${BASE}/res_exp_realign"
 	rm -rf -- "${BASE}/tmp"
+	pwd
+	ls "${BASE}/"
+	ls "${BASE}/"*.aln
+	tar -czvf "mmseqs_results_${BASE}/${OUT}.tar.gz" "${BASE}/"*.aln
 	`)
 
 		err = script.Close()
@@ -294,6 +299,7 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 			strconv.Itoa(b2i[useFilter]),
 			strconv.Itoa(b2i[taxonomy]),
 			strconv.Itoa(b2i[m8out]),
+			string(request.Id),
 		}
 
 		cmd, done, err := execCommand(config.Verbose, parameters...)
@@ -313,7 +319,7 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 			}
 
 			path := filepath.Join(filepath.Clean(config.Paths.Results), string(request.Id))
-			file, err := os.Create(filepath.Join(path, "mmseqs_results_"+string(request.Id)+".tar.gz"))
+			file, err := os.Create(filepath.Join(path, "ignore_mmseqs_results_"+string(request.Id)+".tar.gz"))
 			if err != nil {
 				return &JobExecutionError{err}
 			}
@@ -334,7 +340,6 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 					}
 				}()
 
-				// tired of these errors -- we are skipping generating of these outputs anyways
 				/*
 				if config.App == AppPredictProtein {
 					if err := addFile(tw, filepath.Join(resultBase, "uniref.sto")); err != nil {
@@ -384,6 +389,7 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 					}
 				}
 				*/
+				
 				return nil
 			}()
 

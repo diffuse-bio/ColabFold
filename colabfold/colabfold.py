@@ -76,8 +76,8 @@ def run_mmseqs2(x: dict, prefix, use_env=True, use_filter=True,
   headers = {}
   if user_agent != "":
     headers['User-Agent'] = user_agent
-  else:
-    logger.warning("No user agent specified. Please set a user agent (e.g., 'toolname/version contact@email') to help us debug in case of problems. This warning will become an error in the future.")
+  # else:
+  #   logger.warning("No user agent specified. Please set a user agent (e.g., 'toolname/version contact@email') to help us debug in case of problems. This warning will become an error in the future.")
 
   def submit(x, mode):
     query = ""
@@ -247,10 +247,12 @@ def run_mmseqs2(x: dict, prefix, use_env=True, use_filter=True,
     a3m_files = glob.glob(f"{path}/*.aln")
     if use_env: a3m_files.append(f"{path}/bfd.mgnify30.metaeuk30.smag30.a3m")
 
-  # extract a3m files
-  if any(not os.path.isfile(a3m_file) for a3m_file in a3m_files):
-    with tarfile.open(tar_gz_file) as tar_gz:
-      tar_gz.extractall(path)
+
+
+  # # extract a3m files
+  # if any(not os.path.isfile(a3m_file) for a3m_file in a3m_files):
+  #   with tarfile.open(tar_gz_file) as tar_gz:
+  #     tar_gz.extractall(path)
 
   # # templates
   # if use_templates:
