@@ -1,6 +1,7 @@
 import os
 import subprocess
 from argparse import ArgumentParser
+from google.cloud import storage
 
 
 def setup_paired_msa(job_fasta, intermediate_store):
@@ -14,15 +15,24 @@ def setup_paired_msa(job_fasta, intermediate_store):
         id_B = lines[2][1:-1]
         
     
-    assert os.path.exists(f'{intermediate_store}/{id_A}.aln')
-    assert os.path.exists(f'{intermediate_store}/{id_B}.aln')
+    # pull aln files from GCS
+    # hardcoded GCS paths
+    client = storage.Client()
+    bucket = client.get_bucket('diffuse-us-central1-west1')
+    blob_A = bucket.blob(f'data/msas/server_msas/intermediate_store/{id_A}.aln')
+    blob_B = bucket.blob(f'data/msas/server_msas/intermediate_store/{id_B}.aln')
+
+    assert blob_A.exists() and blob_B.exists(), f'{id_A}: {blob_A.exists()}, {id_B}: {blob_B.exists()}'
     
-    # copy over res_exp_realign files -- symbolic link
-    subprocess.run(['ln', '-s', f'{intermediate_store}/{id_A}.aln', f'{base}/res_exp_realign.0'])
-    subprocess.run(['ln', '-s', f'{intermediate_store}/{id_B}.aln', f'{base}/res_exp_realign.1'])
+    # save to correct names
+    with open(f'{base}/res_exp_realign.0', 'w') as f:
+        f.write(blob_A.open())
+    with open(f'{base}/res_exp_realign.1', 'w') as f:
+        f.write(blob_B.open())
+    
+    # copy over res_exp_realign dbtype file
     subprocess.run(['ln', '-s', f'{intermediate_store}/res_exp_realign.dbtype', f'{base}/'])
-
-
+    
 
     # remake the index
     index_a = os.stat(f'{base}/res_exp_realign.0').st_size
