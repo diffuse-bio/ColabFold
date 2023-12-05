@@ -26,13 +26,17 @@ def setup_paired_msa(job_fasta, intermediate_store):
     
     # save to correct names
     with open(f'{base}/res_exp_realign.0', 'w') as f:
-        f.write(blob_A.open())
+        f.write(blob_A.open('r').read())
     with open(f'{base}/res_exp_realign.1', 'w') as f:
-        f.write(blob_B.open())
+        f.write(blob_B.open('r').read())
     
-    # copy over res_exp_realign dbtype file
-    subprocess.run(['ln', '-s', f'{intermediate_store}/res_exp_realign.dbtype', f'{base}/'])
-    
+    ## copy over res_exp_realign dbtype file
+    # subprocess.run(['gsutil', 'cp', f'gs://diffuse-us-central1-west1/data/msas/server_msas/intermediate_store/{id_A}.aln', f'{base}/'])
+    # subprocess.run(['gsutil', 'cp', f'gs://diffuse-us-central1-west1/data/msas/server_msas/intermediate_store/{id_B}.aln', f'{base}/'])
+    # subprocess.run(['mv', f'{base}/{id_A}.aln', f'{base}/res_exp_realign.0'])
+    # subprocess.run(['mv', f'{base}/{id_B}.aln', f'{base}/res_exp_realign.1'])
+    subprocess.run(['cp', f'{os.getcwd()}/res_exp_realign.dbtype', f'{base}/'])
+    # subprocess.run('awk', 'BEGIN { printf("%c%c%c%c",0,0,0,0); exit; }', '>', 'res_exp_realign.dbtype'], shell=True)
 
     # remake the index
     index_a = os.stat(f'{base}/res_exp_realign.0').st_size
