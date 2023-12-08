@@ -283,12 +283,12 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 		"${MMSEQS}" mvdb "${BASE}/uniref.a3m" "${BASE}/final.a3m"
 		"${MMSEQS}" cpdb "${BASE}/qdb.lookup" "${BASE}/final.a3m.lookup" 
 		"${MMSEQS}" unpackdb "${BASE}/final.a3m" "${BASE}" --unpack-name-mode 1 --unpack-suffix .a3m
+		"${MMSEQS}" rmdb "${BASE}/final.a3m"
 		python3 mmseqs-server/backend/add_tax_to_msa.py "${BASE}/convertalis_tax" "${BASE}"
 		"${MMSEQS}" rmdb "${BASE}/qdb"
 		"${MMSEQS}" rmdb "${BASE}/qdb_h"
 		"${MMSEQS}" rmdb "${BASE}/res_exp_realign"
 		"${MMSEQS}" rmdb "${BASE}/convertalis_tax"
-		"${MMSEQS}" rmdb "${BASE}/final.a3m"
 		rm -rf -- "${BASE}/tmp"
 		cd "${BASE}"
 		tar -czvf "mmseqs_results_${OUT}.tar.gz" *.a3m *.a3m.tax msa.sh

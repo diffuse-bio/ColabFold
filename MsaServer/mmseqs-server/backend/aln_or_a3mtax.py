@@ -20,7 +20,7 @@ def setup_single_msa(job_fasta):
     # save file from gcs to pick up where we left off 
     # also dynamically build the index as the files are copied
     index_str = ''
-    prev_size = 0
+    total_size = 0
     # check that all files exist
     if all([blob.exists() for blob in blobs]):
         subprocess.run(['touch', f'{base}/ALN_FOUND'])
@@ -29,8 +29,8 @@ def setup_single_msa(job_fasta):
                 f.write(blob.open('r').read())
             # build index string
             curr_size = os.stat(f'{base}/res_exp_realign.{j}').st_size
-            index_str += f'{j}\t{prev_size}\t{curr_size}\n'
-            prev_size = curr_size
+            index_str += f'{j}\t{total_size}\t{curr_size}\n'
+            total_size += curr_size
                 
 
     with open(f'{base}/res_exp_realign.index', 'w') as f:
