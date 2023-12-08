@@ -243,31 +243,55 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 		script.WriteString(`#!/bin/bash -e
 	MMSEQS="$1"
 	QUERY="$2"
-	DBBASE="$3"
 	BASE="$4"
 	DB1="$5"
 	DB2="$6"
+	DB3="$7"
+	USE_ENV="$8"
+	USE_TEMPLATES="$9"
+	FILTER="${10}"
+	TAXONOMY="${11}"
+	M8OUT="${12}"
 	OUT="$13"
+	
 	mkdir -p "${BASE}"
 	SEARCH_PARAM="--num-iterations 3 --db-load-mode 2 -a --k-score 'seq:96,prof:80' -e 0.1 --max-seqs 10000"
 	EXPAND_PARAM="--expansion-mode 0 -e inf --expand-filter-clusters 0 --max-seq-id 0.95"
 	export MMSEQS_CALL_DEPTH=1
 	"${MMSEQS}" createdb "${QUERY}" "${BASE}/qdb" --shuffle 0
-	"${MMSEQS}" search "${BASE}/qdb" "${DB1}" "${BASE}/res" "${BASE}/tmp" $SEARCH_PARAM
-	"${MMSEQS}" expandaln "${BASE}/qdb" "${DB1}.idx" "${BASE}/res" "${DB1}.idx" "${BASE}/res_exp" --db-load-mode 2 ${EXPAND_PARAM}
-	"${MMSEQS}" align   "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp" "${BASE}/res_exp_realign" --db-load-mode 2 -e 0.001 --max-accept 1000000 -c 0.5 --cov-mode 1
-	"${MMSEQS}" cpdb "${BASE}/qdb.lookup" "${BASE}/res_exp_realign.lookup"
-	"${MMSEQS}" unpackdb "${BASE}/res_exp_realign" "${BASE}" --unpack-name-mode 1 --unpack-suffix .aln
-	"${MMSEQS}" rmdb "${BASE}/qdb"
-	"${MMSEQS}" rmdb "${BASE}/qdb_h"
-	"${MMSEQS}" rmdb "${BASE}/res"
-	"${MMSEQS}" rmdb "${BASE}/res_exp"
-	"${MMSEQS}" rmdb "${BASE}/res_final"
-	"${MMSEQS}" rmdb "${BASE}/res_exp_realign"
-	rm -rf -- "${BASE}/tmp"
-	cd "${BASE}"
-	tar -czvf "mmseqs_results_${OUT}.tar.gz" *.aln msa.sh
+	python3 mmseqs-server/backend/aln_or_a3mtax.py "${BASE}/job.fasta"
+	ls "${BASE}"
+	if [ ! -f "${BASE}/ALN_FOUND" ]; then
+		"${MMSEQS}" search "${BASE}/qdb" "${DB1}" "${BASE}/res" "${BASE}/tmp" $SEARCH_PARAM
+		"${MMSEQS}" expandaln "${BASE}/qdb" "${DB1}.idx" "${BASE}/res" "${DB1}.idx" "${BASE}/res_exp" --db-load-mode 2 ${EXPAND_PARAM}
+		"${MMSEQS}" align   "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp" "${BASE}/res_exp_realign" --db-load-mode 2 -e 0.001 --max-accept 1000000 -c 0.5 --cov-mode 1
+		"${MMSEQS}" cpdb "${BASE}/qdb.lookup" "${BASE}/res_exp_realign.lookup"
+		"${MMSEQS}" unpackdb "${BASE}/res_exp_realign" "${BASE}" --unpack-name-mode 1 --unpack-suffix .aln
+		"${MMSEQS}" rmdb "${BASE}/qdb"
+		"${MMSEQS}" rmdb "${BASE}/qdb_h"
+		"${MMSEQS}" rmdb "${BASE}/res"
+		"${MMSEQS}" rmdb "${BASE}/res_exp"
+		"${MMSEQS}" rmdb "${BASE}/res_final"
+		"${MMSEQS}" rmdb "${BASE}/res_exp_realign"
+		rm -rf -- "${BASE}/tmp"
+		cd "${BASE}"
+		tar -czvf "mmseqs_results_${OUT}.tar.gz" *.aln msa.sh
+	
+	else
+		"${MMSEQS}" convertalis "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign" "${BASE}/convertalis_tax" --format-output target,evalue,taxid,taxname,taxlineage --db-load-mode 2
+		"${MMSEQS}" result2msa "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign" "${BASE}/final.a3m" --msa-format-mode 6 --db-load-mode 2
+		"${MMSEQS}" cpdb "${BASE}/qdb.lookup" "${BASE}/final.a3m.lookup" 
+		"${MMSEQS}" unpackdb "${BASE}/final.a3m" . --unpack-name-mode 1 --unpack-suffix .a3m
+		python3 mmseqs-server/backend/add_tax_to_msa.py "${BASE}/convertalis_tax" "${BASE}"
+		cd "${BASE}"
+		tar -czvf "mmseqs_results_${OUT}.tar.gz" *.a3m *.a3m.tax msa.sh
+	fi
 	`)
+
+	// "${MMSEQS}" rmdb "${BASE}/qdb.lookup"
+	// "${MMSEQS}" rmdb "${BASE}/res_exp_realign"
+	// "${MMSEQS}" rmdb "${BASE}/convertalis_tax"
+	// rm -rf -- "${BASE}/tmp"
 
 		err = script.Close()
 		if err != nil {
@@ -298,6 +322,7 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 			strconv.Itoa(b2i[taxonomy]),
 			strconv.Itoa(b2i[m8out]),
 			string(request.Id),
+			resultBase,
 		}
 
 		cmd, done, err := execCommand(config.Verbose, parameters...)
