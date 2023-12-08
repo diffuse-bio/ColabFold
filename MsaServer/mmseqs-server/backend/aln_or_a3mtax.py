@@ -22,16 +22,18 @@ def setup_single_msa(job_fasta):
     index_str = ''
     total_size = 0
     # check that all files exist
-    if all([blob.exists() for blob in blobs]):
-        subprocess.run(['touch', f'{base}/ALN_FOUND'])
-        for j, blob in enumerate(blobs):
-            with open(f'{base}/res_exp_realign.{j}', 'w') as f:
-                f.write(blob.open('r').read())
-            # build index string
-            curr_size = os.stat(f'{base}/res_exp_realign.{j}').st_size
-            index_str += f'{j}\t{total_size}\t{curr_size}\n'
-            total_size += curr_size
-                
+    exists = [blob.exists() for blob in blobs]
+    print(f'Out of {len(ids)} IDs, aln files were found for {sum(exists)} of them.')
+    # if all(exists):
+    subprocess.run(['touch', f'{base}/ALN_FOUND'])
+    for j, blob in enumerate(blobs):
+        with open(f'{base}/res_exp_realign.{j}', 'w') as f:
+            f.write(blob.open('r').read())
+        # build index string
+        curr_size = os.stat(f'{base}/res_exp_realign.{j}').st_size
+        index_str += f'{j}\t{total_size}\t{curr_size}\n'
+        total_size += curr_size
+            
 
     with open(f'{base}/res_exp_realign.index', 'w') as f:
         f.write(index_str)
