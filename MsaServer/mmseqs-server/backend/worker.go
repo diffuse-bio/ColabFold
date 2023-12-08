@@ -279,19 +279,21 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 	
 	else
 		"${MMSEQS}" convertalis "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign" "${BASE}/convertalis_tax" --format-output target,evalue,taxid,taxname,taxlineage --db-load-mode 2
-		"${MMSEQS}" result2msa "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign" "${BASE}/final.a3m" --msa-format-mode 6 --db-load-mode 2
+		"${MMSEQS}" result2msa "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign" "${BASE}/uniref.a3m" --msa-format-mode 6 --db-load-mode 2
+		"${MMSEQS}" mvdb "${BASE}/uniref.a3m" "${BASE}/final.a3m"
 		"${MMSEQS}" cpdb "${BASE}/qdb.lookup" "${BASE}/final.a3m.lookup" 
-		"${MMSEQS}" unpackdb "${BASE}/final.a3m" . --unpack-name-mode 1 --unpack-suffix .a3m
+		"${MMSEQS}" unpackdb "${BASE}/final.a3m" "${BASE}" --unpack-name-mode 1 --unpack-suffix .a3m
 		python3 mmseqs-server/backend/add_tax_to_msa.py "${BASE}/convertalis_tax" "${BASE}"
+		"${MMSEQS}" rmdb "${BASE}/qdb"
+		"${MMSEQS}" rmdb "${BASE}/qdb_h"
+		"${MMSEQS}" rmdb "${BASE}/res_exp_realign"
+		"${MMSEQS}" rmdb "${BASE}/convertalis_tax"
+		"${MMSEQS}" rmdb "${BASE}/final.a3m"
+		rm -rf -- "${BASE}/tmp"
 		cd "${BASE}"
 		tar -czvf "mmseqs_results_${OUT}.tar.gz" *.a3m *.a3m.tax msa.sh
 	fi
 	`)
-
-	// "${MMSEQS}" rmdb "${BASE}/qdb.lookup"
-	// "${MMSEQS}" rmdb "${BASE}/res_exp_realign"
-	// "${MMSEQS}" rmdb "${BASE}/convertalis_tax"
-	// rm -rf -- "${BASE}/tmp"
 
 		err = script.Close()
 		if err != nil {

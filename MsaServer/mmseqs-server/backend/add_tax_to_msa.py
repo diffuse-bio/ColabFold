@@ -77,6 +77,8 @@ def add_tax_to_msa(convertalis_path: str, msa_path: str):
         fns = glob.glob(f'{msa_path}/*.a3m') # batch add tax for all a3ms found
     else:
         fns = [msa_path]
+        
+    assert len(fns) > 0, 'No a3ms found!'
 
     for fn in fns:
         with open(fn,'r') as f:
