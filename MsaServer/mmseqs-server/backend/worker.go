@@ -260,40 +260,43 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 	export MMSEQS_CALL_DEPTH=1
 	"${MMSEQS}" createdb "${QUERY}" "${BASE}/qdb" --shuffle 0
 	python3 mmseqs-server/backend/aln_or_a3mtax.py "${BASE}/job.fasta"
-	ls "${BASE}"
-	if [ ! -f "${BASE}/ALN_FOUND" ]; then
-		"${MMSEQS}" search "${BASE}/qdb" "${DB1}" "${BASE}/res" "${BASE}/tmp" $SEARCH_PARAM
-		"${MMSEQS}" expandaln "${BASE}/qdb" "${DB1}.idx" "${BASE}/res" "${DB1}.idx" "${BASE}/res_exp" --db-load-mode 2 ${EXPAND_PARAM}
-		"${MMSEQS}" align   "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp" "${BASE}/res_exp_realign" --db-load-mode 2 -e 0.001 --max-accept 1000000 -c 0.5 --cov-mode 1
-		"${MMSEQS}" cpdb "${BASE}/qdb.lookup" "${BASE}/res_exp_realign.lookup"
-		"${MMSEQS}" unpackdb "${BASE}/res_exp_realign" "${BASE}" --unpack-name-mode 1 --unpack-suffix .aln
-		"${MMSEQS}" rmdb "${BASE}/qdb"
-		"${MMSEQS}" rmdb "${BASE}/qdb_h"
-		"${MMSEQS}" rmdb "${BASE}/res"
-		"${MMSEQS}" rmdb "${BASE}/res_exp"
-		"${MMSEQS}" rmdb "${BASE}/res_final"
-		"${MMSEQS}" rmdb "${BASE}/res_exp_realign"
-		rm -rf -- "${BASE}/tmp"
-		cd "${BASE}"
-		tar -czvf "mmseqs_results_${OUT}.tar.gz" *.aln msa.sh
-	
-	else
-		"${MMSEQS}" convertalis "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign" "${BASE}/convertalis_tax" --format-output target,evalue,taxid,taxname,taxlineage --db-load-mode 2
-		"${MMSEQS}" result2msa "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign" "${BASE}/uniref.a3m" --msa-format-mode 6 --db-load-mode 2
-		"${MMSEQS}" mvdb "${BASE}/uniref.a3m" "${BASE}/final.a3m"
-		"${MMSEQS}" cpdb "${BASE}/qdb.lookup" "${BASE}/final.a3m.lookup" 
-		"${MMSEQS}" unpackdb "${BASE}/final.a3m" "${BASE}" --unpack-name-mode 1 --unpack-suffix .a3m
-		python3 mmseqs-server/backend/add_tax_to_msa.py "${BASE}/convertalis_tax" "${BASE}"
-		"${MMSEQS}" rmdb "${BASE}/qdb"
-		"${MMSEQS}" rmdb "${BASE}/qdb_h"
-		"${MMSEQS}" rmdb "${BASE}/res_exp_realign"
-		"${MMSEQS}" rmdb "${BASE}/convertalis_tax"
-		"${MMSEQS}" rmdb "${BASE}/final.a3m"
-		rm -rf -- "${BASE}/tmp"
-		cd "${BASE}"
-		tar -czvf "mmseqs_results_${OUT}.tar.gz" *.a3m *.a3m.tax msa.sh
-	fi
-	`)
+
+		if [! -f "${BASE}/ALN_FOUND"]; then
+			echo CALCULATING ALN
+			"${MMSEQS}" search "${BASE}/qdb" "${DB1}" "${BASE}/res" "${BASE}/tmp" $SEARCH_PARAM
+			"${MMSEQS}" expandaln "${BASE}/qdb" "${DB1}.idx" "${BASE}/res" "${DB1}.idx" "${BASE}/res_exp" --db-load-mode 2 ${EXPAND_PARAM}
+			"${MMSEQS}" align   "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp" "${BASE}/res_exp_realign" --db-load-mode 2 -e 0.001 --max-accept 1000000 -c 0.5 --cov-mode 1
+			"${MMSEQS}" cpdb "${BASE}/qdb.lookup" "${BASE}/res_exp_realign.lookup"
+			"${MMSEQS}" unpackdb "${BASE}/res_exp_realign" "${BASE}" --unpack-name-mode 1 --unpack-suffix .aln
+			"${MMSEQS}" rmdb "${BASE}/qdb"
+			"${MMSEQS}" rmdb "${BASE}/qdb_h"
+			"${MMSEQS}" rmdb "${BASE}/res"
+			"${MMSEQS}" rmdb "${BASE}/res_exp"
+			"${MMSEQS}" rmdb "${BASE}/res_final"
+			"${MMSEQS}" rmdb "${BASE}/res_exp_realign"
+			rm -rf -- "${BASE}/tmp"
+			cd "${BASE}"
+			tar -czvf "mmseqs_results_${OUT}.tar.gz" *.aln msa.sh
+		else 
+			echo CALCULATING A3M FILES
+			"${MMSEQS}" convertalis "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign" "${BASE}/convertalis_tax" --format-output target,evalue,taxid,taxname,taxlineage --db-load-mode 2
+			"${MMSEQS}" convertalis "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign" "${BASE}/convertalis_seq" --format-output target,tseq --db-load-mode 2
+			"${MMSEQS}" result2msa "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign" "${BASE}/uniref.a3m" --msa-format-mode 6 --db-load-mode 2
+			"${MMSEQS}" mvdb "${BASE}/uniref.a3m" "${BASE}/final.a3m"
+			"${MMSEQS}" cpdb "${BASE}/qdb.lookup" "${BASE}/final.a3m.lookup" 
+			"${MMSEQS}" unpackdb "${BASE}/final.a3m" "${BASE}" --unpack-name-mode 1 --unpack-suffix .a3m
+			"${MMSEQS}" rmdb "${BASE}/final.a3m"
+			python3 mmseqs-server/backend/add_tax_to_msa.py "${BASE}/convertalis_tax" "${BASE}"
+			"${MMSEQS}" rmdb "${BASE}/qdb"
+			"${MMSEQS}" rmdb "${BASE}/qdb_h"
+			"${MMSEQS}" rmdb "${BASE}/res_exp_realign"
+			"${MMSEQS}" rmdb "${BASE}/convertalis_tax"
+			rm -rf -- "${BASE}/tmp"
+			cd "${BASE}"
+			tar -czvf "mmseqs_results_${OUT}.tar.gz" *.a3m *.a3m.tax msa.sh
+		fi
+		`)		
+
 
 		err = script.Close()
 		if err != nil {
@@ -459,7 +462,12 @@ python3 "${CWD}/mmseqs-server/backend/get_intermediates.py" "${BASE}/job.fasta" 
 "${MMSEQS}" pairaln "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign" "${BASE}/res_exp_realign_pair" --db-load-mode 2
 "${MMSEQS}" align   "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign_pair" "${BASE}/res_exp_realign_pair_bt" --db-load-mode 2 -e inf -a
 "${MMSEQS}" pairaln "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign_pair_bt" "${BASE}/res_final" --db-load-mode 2
+"${MMSEQS}" convertalis "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign_pair_bt" "${BASE}/convertalis_tax" --format-output target,evalue,taxid,taxname,taxlineage --db-load-mode 2
+"${MMSEQS}" convertalis "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign_pair_bt" "${BASE}/convertalis_seq" --format-output target,tseq --db-load-mode 2
 "${MMSEQS}" result2msa "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_final" "${BASE}/pair.a3m" --db-load-mode 2 --msa-format-mode 5
+"${MMSEQS}" unpackdb "${BASE}/pair.a3m" "${BASE}" --unpack-name-mode 0 --unpack-suffix .a3m
+python3 "${CWD}/mmseqs-server/backend/convertalis_seq_to_tsv.py" "${BASE}/convertalis_seq" "${BASE}/0.a3m" "${BASE}/1.a3m"
+python3 mmseqs-server/backend/add_tax_to_msa.py "${BASE}/convertalis_tax" "${BASE}"
 "${MMSEQS}" rmdb "${BASE}/qdb"
 "${MMSEQS}" rmdb "${BASE}/qdb_h"
 "${MMSEQS}" rmdb "${BASE}/res"
@@ -525,11 +533,15 @@ rm -rf -- "${BASE}/tmp"
 					}
 				}()
 
-				if err := addFile(tw, filepath.Join(resultBase, "pair.a3m")); err != nil {
+				if err := addFile(tw, filepath.Join(resultBase, "0.a3m.tax")); err != nil {
 					return err
 				}
 
-				if err := addFile(tw, filepath.Join(resultBase, "pair.sh")); err != nil {
+				if err := addFile(tw, filepath.Join(resultBase, "1.a3m.tax")); err != nil {
+					return err
+				}
+
+				if err := addFile(tw, filepath.Join(resultBase, "convertalis_seq.tsv")); err != nil {
 					return err
 				}
 
