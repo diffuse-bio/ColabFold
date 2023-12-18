@@ -298,6 +298,23 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 		`)		
 
 
+		// if [ ! -f "${BASE}/ALN_FOUND" ]; then
+		// echo CALCULATING ALN
+		// "${MMSEQS}" search "${BASE}/qdb" "${DB1}" "${BASE}/res" "${BASE}/tmp" $SEARCH_PARAM
+		// "${MMSEQS}" expandaln "${BASE}/qdb" "${DB1}.idx" "${BASE}/res" "${DB1}.idx" "${BASE}/res_exp" --db-load-mode 2 ${EXPAND_PARAM}
+		// "${MMSEQS}" align   "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp" "${BASE}/res_exp_realign" --db-load-mode 2 -e 0.001 --max-accept 1000000 -c 0.5 --cov-mode 1
+		// "${MMSEQS}" cpdb "${BASE}/qdb.lookup" "${BASE}/res_exp_realign.lookup"
+		// "${MMSEQS}" unpackdb "${BASE}/res_exp_realign" "${BASE}" --unpack-name-mode 1 --unpack-suffix .aln
+		// "${MMSEQS}" rmdb "${BASE}/qdb"
+		// "${MMSEQS}" rmdb "${BASE}/qdb_h"
+		// "${MMSEQS}" rmdb "${BASE}/res"
+		// "${MMSEQS}" rmdb "${BASE}/res_exp"
+		// "${MMSEQS}" rmdb "${BASE}/res_final"
+		// "${MMSEQS}" rmdb "${BASE}/res_exp_realign"
+		// rm -rf -- "${BASE}/tmp"
+		// cd "${BASE}"
+		// tar -czvf "mmseqs_results_${OUT}.tar.gz" *.aln msa.sh
+
 		err = script.Close()
 		if err != nil {
 			return &JobExecutionError{err}
