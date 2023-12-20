@@ -24,22 +24,24 @@ def setup_single_msa(job_fasta):
     # check that all files exist
     exists = [blob.exists() for blob in blobs]
     print(f'Out of {len(ids)} IDs, aln files were found for {sum(exists)} of them.')
-    # if all(exists):
-    subprocess.run(['touch', f'{base}/ALN_FOUND'])
-    for j, blob in enumerate(blobs):
-        with open(f'{base}/res_exp_realign.{j}', 'w') as f:
-            f.write(blob.open('r').read())
-        # build index string
-        curr_size = os.stat(f'{base}/res_exp_realign.{j}').st_size
-        index_str += f'{j}\t{total_size}\t{curr_size}\n'
-        total_size += curr_size
-            
+    
+    # only copy over intermediate files to local if running the second step
+    if all(exists):
+        subprocess.run(['touch', f'{base}/ALN_FOUND'])
+        for j, blob in enumerate(blobs):
+            with open(f'{base}/res_exp_realign.{j}', 'w') as f:
+                f.write(blob.open('r').read())
+            # build index string
+            curr_size = os.stat(f'{base}/res_exp_realign.{j}').st_size
+            index_str += f'{j}\t{total_size}\t{curr_size}\n'
+            total_size += curr_size   
 
-    with open(f'{base}/res_exp_realign.index', 'w') as f:
-        f.write(index_str)
+        with open(f'{base}/res_exp_realign.index', 'w') as f:
+            f.write(index_str)
 
-    subprocess.run(['cp', f'{os.getcwd()}/res_exp_realign.dbtype', f'{base}/'])
-
+        subprocess.run(['cp', f'{os.getcwd()}/res_exp_realign.dbtype', f'{base}/'])
+    else:
+        print('Calculating intermediate files...')
 
 def main():
     parser = ArgumentParser()
