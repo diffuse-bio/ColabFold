@@ -60,7 +60,7 @@ def to_fasta(seq_list, seq_id_list, output_fn):
     return
 
 
-def add_tax_to_msa(convertalis_path: str, msa_path: str):
+def add_tax_to_msa(convertalis_path: str, msa_path: str, paralogs: bool):
     '''
     Appends taxonomy ID, name, and lineage from `mmseqs convertalis --format-output target,evalue,taxid,taxname,taxlineage`
     to the msa file(s), by matching fasta IDs. 
@@ -92,7 +92,37 @@ def add_tax_to_msa(convertalis_path: str, msa_path: str):
             out_columns = ['id','taxname','taxid','evalue'] + list(msa_df.columns)[2:] + ['taxlineage']
             out_a3m1 = list(m[out_columns].agg('|'.join, axis=1))
             to_fasta(out_a3m0, out_a3m1, f'{fn}.tax')
+            
+            # check for any paralogs -- write a paralog.a3m file if so
+            if paralogs:
+                get_paralogs_fasta(m, f'{fn.split(".")[0]}.paralog.a3m')
     return m
+
+
+def get_paralogs_fasta(msa_df, output_fn):
+
+    msa_df.columns = ['seq','id','tax','taxid',4,5,'coverage','evalue',8,9,10,11,12,13,'lineage']
+    # # get rid of Nones in the first row if exists
+    # if msa_df['coverage'][0] == 'None':
+    #     msa_df['coverage'][0] = 1
+    # # filter by coverage/seq identity > 50%
+    # print('before filtering by coverage', msa_df.shape)
+    # msa_df = msa_df[msa_df['coverage'].astype(float)>0.5]
+    # print('after:', msa_df.shape)
+    ori_seq = msa_df['seq'][0]
+    ori_id = msa_df['id'][0]
+    msa_df = msa_df.sort_values(['tax','evalue'])
+    val_counts = msa_df['tax'].value_counts()
+    paralogs = [val_counts.index[i] for i in range(len(val_counts)) if val_counts.iloc[i] > 1]
+    print(f'{len(val_counts.index)} species')
+    print(f'{len(paralogs)} species with paralogs found')
+    
+    if len(paralogs) >  2:
+        # filter by tax nme
+        paralog_df = msa_df[msa_df['tax'].isin(paralogs)].astype(str)
+        paralog_df = paralog_df[['seq','id','tax','taxid','evalue','lineage']]
+        headers = list(paralog_df[['id','tax','taxid','evalue','lineage']].agg('|'.join, axis=1))
+        to_fasta([ori_seq]+paralog_df['seq'], [ori_id]+headers, output_fn)
 
 
 def main():
@@ -107,8 +137,13 @@ def main():
         type=str,
         help="Path to MSA to append tax info to",
     )
+    parser.add_argument(
+        "--paralogs",
+        action='store_true',
+        help="Whether or not to also calculate paralog.a3m files",
+    )
     args = parser.parse_args()
-    add_tax_to_msa(args.convertalis_path, args.msa_path)
+    add_tax_to_msa(args.convertalis_path, args.msa_path, args.paralogs)
 
 
 if __name__ == '__main__':

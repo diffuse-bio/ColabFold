@@ -483,7 +483,7 @@ python3 "${CWD}/mmseqs-server/backend/get_intermediates.py" "${BASE}/job.fasta" 
 "${MMSEQS}" pairaln "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign_pair_bt" "${BASE}/res_final" --db-load-mode 2
 "${MMSEQS}" convertalis "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign_pair_bt" "${BASE}/convertalis_tax" --format-output target,evalue,taxid,taxname,taxlineage --db-load-mode 2
 "${MMSEQS}" convertalis "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_exp_realign_pair_bt" "${BASE}/convertalis_seq" --format-output target,tseq --db-load-mode 2
-"${MMSEQS}" result2msa "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_final" "${BASE}/pair.a3m" --db-load-mode 2 --msa-format-mode 5
+"${MMSEQS}" result2msa "${BASE}/qdb" "${DB1}.idx" "${BASE}/res_final" "${BASE}/pair.a3m" --db-load-mode 2 --msa-format-mode 6
 "${MMSEQS}" unpackdb "${BASE}/pair.a3m" "${BASE}" --unpack-name-mode 0 --unpack-suffix .a3m
 python3 "${CWD}/mmseqs-server/backend/convertalis_seq_to_tsv.py" "${BASE}/convertalis_seq" --pair --a3m_0 "${BASE}/0.a3m" --a3m_1 "${BASE}/1.a3m"
 python3 mmseqs-server/backend/add_tax_to_msa.py "${BASE}/convertalis_tax" "${BASE}"
