@@ -286,7 +286,7 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 			"${MMSEQS}" cpdb "${BASE}/qdb.lookup" "${BASE}/final.a3m.lookup" 
 			"${MMSEQS}" unpackdb "${BASE}/final.a3m" "${BASE}" --unpack-name-mode 1 --unpack-suffix .a3m
 			"${MMSEQS}" rmdb "${BASE}/final.a3m"
-			python3 mmseqs-server/backend/add_tax_to_msa.py "${BASE}/convertalis_tax" "${BASE}"
+			python3 mmseqs-server/backend/add_tax_to_msa.py "${BASE}/convertalis_tax" "${BASE}" --paralogs
 			python3 mmseqs-server/backend/convertalis_seq_to_tsv.py "${BASE}/convertalis_seq" --a3m_dir "${BASE}"
 			"${MMSEQS}" rmdb "${BASE}/qdb"
 			"${MMSEQS}" rmdb "${BASE}/qdb_h"
