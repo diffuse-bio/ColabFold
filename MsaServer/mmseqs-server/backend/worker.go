@@ -261,7 +261,7 @@ func RunJob(request JobRequest, config ConfigRoot) (err error) {
 	"${MMSEQS}" createdb "${QUERY}" "${BASE}/qdb" --shuffle 0
 	python3 mmseqs-server/backend/aln_or_a3mtax.py "${BASE}/job.fasta"
 
-		if [! -f "${BASE}/ALN_FOUND"]; then
+		if [ ! -f "${BASE}/ALN_FOUND" ]; then
 			echo CALCULATING ALN
 			"${MMSEQS}" search "${BASE}/qdb" "${DB1}" "${BASE}/res" "${BASE}/tmp" $SEARCH_PARAM
 			"${MMSEQS}" expandaln "${BASE}/qdb" "${DB1}.idx" "${BASE}/res" "${DB1}.idx" "${BASE}/res_exp" --db-load-mode 2 ${EXPAND_PARAM}
