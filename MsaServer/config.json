@@ -3,24 +3,24 @@
     "verbose": true,
     "server" : {
         // you might want to change the port
-        "address"    : "127.0.0.1:80",
+        "address"    : "127.0.0.1:1234",
         "dbmanagment": false,
         "cors"       : true
     },
     "paths" : {
-        "databases"    : "~/databases",
-        "results"      : "~/jobs",
+        "databases"    : "databases",
+        "results"      : "jobs",
         "temporary"    : "~/tmp",
         "colabfold"    : {
             // disable parallel stage execution if you plan to use exactly #workers of CPU-cores
             // this will ~2-3x speedup the execution, while requiring more cores
             "parallelstages": true,
-            "uniref"        : "~/databases/uniref30_2202_db",
-            "pdb"           : "~/databases/pdb70_220313",
-            "environmental" : "~/databases/colabfold_envdb_202108_db",
-            "pdb70"         : "~/databases/pdb70",
-            "pdbdivided"    : "~/databases/pdb/divided",
-            "pdbobsolete"   : "~/databases/pdb/obsolete"
+            "uniref"        : "/mnt/disks/colabfold-dbs/databases/uniref30_db",
+            "pdb"           : "/mnt/disks/colabfold-dbs/databases/pdb100_230517",
+            "environmental" : "/mnt/disks/colabfold-dbs/databases/colabfold_envdb",
+            "pdb70"         : "/mnt/disks/colabfold-dbs/databases/pdb100",
+            "pdbdivided"    : "/mnt/disks/colabfold-dbs/databases/pdb/divided",
+            "pdbobsolete"   : "/mnt/disks/colabfold-dbs/databases/pdb/obsolete"
         },
         "mmseqs"       : "~/mmseqs/bin/mmseqs"
     },
